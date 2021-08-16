@@ -1,0 +1,5 @@
+{
+	"AppName": "testApp",
+	"Port": 3000,
+	"ServerRoot": "./jtms/app/"
+}
