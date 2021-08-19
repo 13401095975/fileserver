@@ -7,9 +7,10 @@ import (
 )
 
 type Server struct {
-	AppName    string
-	Port       int
-	ServerRoot string
+	AppName       string
+	Port          int
+	ServerRoot    string
+	CacheFileType []string
 }
 
 var ServerCfg Server

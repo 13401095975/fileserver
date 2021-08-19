@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func main() {
@@ -19,6 +20,24 @@ func main() {
 	}
 
 	log.Printf("%s server running at port: %d", ServerCfg.AppName, ServerCfg.Port)
-	http.Handle("/", http.FileServer(http.Dir(ServerCfg.ServerRoot)))
+	http.Handle("/", CacheControlWrapper(http.FileServer(http.Dir(ServerCfg.ServerRoot))))
 	http.ListenAndServe(":"+strconv.Itoa(ServerCfg.Port), nil)
+}
+
+func CacheControlWrapper(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		if len(ServerCfg.CacheFileType) == 0 {
+			h.ServeHTTP(w, r)
+			return
+		}
+		for _, suffix := range ServerCfg.CacheFileType {
+			if strings.HasSuffix(r.RequestURI, suffix) {
+				w.Header().Set("Cache-Control", "max-age=2592000")
+				break
+			}
+		}
+
+		h.ServeHTTP(w, r)
+	})
 }
